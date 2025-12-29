@@ -7,6 +7,8 @@ import authStore from "../store/auth.store";
 import ticketsStore from "../store/tickets.store";
 import prioritiesStore from "../store/priorities.store";
 import type { Priority } from "../models";
+import { Container, Box, TextField, MenuItem, Button, Typography, Paper, Alert } from "@mui/material";
+import { useState } from "react";
 
 interface NewTicketFormData {
   subject: string;
@@ -16,6 +18,7 @@ interface NewTicketFormData {
 
 const NewTicket = observer(() => {
   const navigate = useNavigate();
+  const [showSuccess, setShowSuccess] = useState(false);
   const { register, handleSubmit, formState: { errors }, reset } = useForm<NewTicketFormData>({
     defaultValues: {
       subject: "",
@@ -53,8 +56,13 @@ const NewTicket = observer(() => {
       // ניקוי הטופס
       reset();
       
-      // הפניה לדף הבית (Dashboard)
-      navigate('/dashboard');
+      // הצגת הודעת הצלחה
+      setShowSuccess(true);
+      
+      // הפניה לדף הבית (Dashboard) אחרי 2 שניות
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
     },
     onError: (error) => {
       console.error("Error creating ticket:", error);
@@ -66,103 +74,85 @@ const NewTicket = observer(() => {
   };
 
   return (
-    <div style={{ maxWidth: '500px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
-      <h2>יצירת כרטיס חדש</h2>
-      
-      <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+    <Container maxWidth="sm" sx={{ py: 4 }}>
+      {showSuccess && (
+        <Alert severity="success" sx={{ mb: 3, fontSize: '1rem' }}>
+          ✅ כרטיס נוצר בהצלחה! מעביר אותך לדף הבית...
+        </Alert>
+      )}
+      <Paper sx={{ p: 4, boxShadow: 2 }}>
+        <Typography variant="h4" component="h1" sx={{ mb: 4, fontWeight: 'bold', color: '#2c3e50' }}>
+          📝 יצירת כרטיס חדש
+        </Typography>
         
-        {/* שדה הנושא */}
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>נושא:</label>
-          <input
-            type="text"
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {/* שדה הנושא */}
+          <TextField
+            label="נושא"
             placeholder="כתוב נושא לכרטיס"
+            fullWidth
+            disabled={isPending}
             {...register("subject", {
               required: "נושא הוא שדה חובה",
               minLength: { value: 3, message: "נושא חייב להיות לפחות 3 תווים" }
             })}
-            style={{
-              width: '100%',
-              padding: '10px',
-              borderRadius: '4px',
-              border: errors.subject ? '2px solid red' : '1px solid #ccc',
-              boxSizing: 'border-box'
-            }}
-            disabled={isPending}
+            error={!!errors.subject}
+            helperText={errors.subject?.message}
+            variant="outlined"
           />
-          {errors.subject && <p style={{ color: 'red', fontSize: '12px', margin: '5px 0 0 0' }}>{errors.subject.message}</p>}
-        </div>
 
-        {/* שדה התיאור */}
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>תיאור:</label>
-          <textarea
+          {/* שדה התיאור */}
+          <TextField
+            label="תיאור"
             placeholder="תאר את הבעיה או הבקשה"
+            fullWidth
+            multiline
+            minRows={5}
+            disabled={isPending}
             {...register("description", {
               required: "תיאור הוא שדה חובה",
               minLength: { value: 10, message: "תיאור חייב להיות לפחות 10 תווים" }
             })}
-            style={{
-              width: '100%',
-              padding: '10px',
-              borderRadius: '4px',
-              border: errors.description ? '2px solid red' : '1px solid #ccc',
-              fontFamily: 'Arial',
-              minHeight: '120px',
-              resize: 'vertical',
-              boxSizing: 'border-box'
-            }}
-            disabled={isPending}
+            error={!!errors.description}
+            helperText={errors.description?.message}
+            variant="outlined"
           />
-          {errors.description && <p style={{ color: 'red', fontSize: '12px', margin: '5px 0 0 0' }}>{errors.description.message}</p>}
-        </div>
 
-        {/* שדה העדיפות */}
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>עדיפות:</label>
-          <select
+          {/* שדה העדיפות */}
+          <TextField
+            select
+            label="עדיפות"
+            fullWidth
+            disabled={isPending}
+            defaultValue={1}
             {...register("priority_id", {
               required: "עדיפות היא שדה חובה"
             })}
-            style={{
-              width: '100%',
-              padding: '10px',
-              borderRadius: '4px',
-              border: errors.priority_id ? '2px solid red' : '1px solid #ccc',
-              boxSizing: 'border-box'
-            }}
-            disabled={isPending}
+            error={!!errors.priority_id}
+            helperText={errors.priority_id?.message}
+            variant="outlined"
           >
-            <option value="">בחר עדיפות</option>
             {prioritiesStore.priorities.map((priority: Priority) => (
-              <option key={priority.id} value={priority.id}>
+              <MenuItem key={priority.id} value={priority.id}>
                 {priority.name}
-              </option>
+              </MenuItem>
             ))}
-          </select>
-          {errors.priority_id && <p style={{ color: 'red', fontSize: '12px', margin: '5px 0 0 0' }}>{errors.priority_id.message}</p>}
-        </div>
+          </TextField>
 
-        {/* כפתור שליחה */}
-        <button
-          type="submit"
-          disabled={isPending}
-          style={{
-            padding: '12px 20px',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: isPending ? 'not-allowed' : 'pointer',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            opacity: isPending ? 0.6 : 1
-          }}
-        >
-          {isPending ? "יוצר כרטיס..." : "יצור כרטיס"}
-        </button>
-      </form>
-    </div>
+          {/* כפתור שליחה */}
+          <Button
+            type="submit"
+            variant="contained"
+            color="success"
+            size="large"
+            disabled={isPending}
+            sx={{ mt: 2 }}
+          >
+            {isPending ? "⏳ יוצר כרטיס..." : "✅ יצור כרטיס"}
+          </Button>
+        </Box>
+      </Paper>
+    </Container>
   );
 });
 

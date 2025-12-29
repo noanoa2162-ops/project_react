@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { observer } from "mobx-react-lite";
+import { Paper, Typography, Box, TextField, Button, Alert } from "@mui/material";
 import { newPriorities } from "../services/api.service";
 import authStore from "../store/auth.store";
 import prioritiesStore from "../store/priorities.store";
@@ -28,7 +29,7 @@ const AddPriority: React.FC<addPriorityProps> = observer(() => {
             setErrorMessage(null);
             
             // הודעת הצלחה ל-2 שניות
-            setSuccessMessage("עדיפות חדשה הוסוהה בהצלחה!");
+            setSuccessMessage("עדיפות חדשה נוספה בהצלחה!");
             setTimeout(() => {
                 setSuccessMessage(null);
             }, 2000);
@@ -62,44 +63,39 @@ const AddPriority: React.FC<addPriorityProps> = observer(() => {
     };
 
     return (
-        <div style={{ marginTop: '20px', padding: '15px', border: '1px solid #ccc', borderRadius: '4px' }}>
-            <h3>הוסף עדיפות חדשה</h3>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px' }}>
-                <input
+        <Paper sx={{ marginTop: '20px', padding: '15px' }}>
+            <Typography variant="h6">הוסף עדיפות חדשה</Typography>
+            <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <TextField
                     type="text"
                     value={priorityName}
                     onChange={(e) => setPriorityName(e.target.value)}
                     placeholder="שם העדיפות החדשה"
-                    style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', flex: 1 }}
                     disabled={isPending}
+                    fullWidth
+                    size="small"
                 />
-                <button
+                <Button
                     type="submit"
-                    style={{
-                        padding: '8px 15px',
-                        backgroundColor: '#4CAF50',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        opacity: isPending ? 0.6 : 1
-                    }}
+                    variant="contained"
+                    color="success"
                     disabled={isPending}
+                    sx={{ minWidth: 'fit-content' }}
                 >
                     {isPending ? "מוסיף..." : "הוסף"}
-                </button>
-            </form>
+                </Button>
+            </Box>
             {successMessage && (
-                <div style={{ marginTop: '10px', color: 'green', fontWeight: 'bold' }}>
+                <Alert severity="success" sx={{ marginTop: '10px' }}>
                     ✓ {successMessage}
-                </div>
+                </Alert>
             )}
             {errorMessage && (
-                <div style={{ marginTop: '10px', color: 'red', fontWeight: 'bold' }}>
+                <Alert severity="error" sx={{ marginTop: '10px' }}>
                     ✗ {errorMessage}
-                </div>
+                </Alert>
             )}
-        </div>
+        </Paper>
     );
 });
 

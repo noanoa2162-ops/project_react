@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { useQuery } from "@tanstack/react-query";
+import { Paper, Typography, Box } from "@mui/material";
 import prioritiesStore from "../store/priorities.store";
 import authStore from "../store/auth.store";
 import { getPriorities } from "../services/api.service";
@@ -16,20 +17,20 @@ const PrioritiesList: React.FC = observer(() => {
         staleTime: Infinity
     });
     return (
-        <div style={{ marginTop: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '4px' }}>
-            <h3>עדיפויות קיימות:</h3>
+        <Paper sx={{ mt: 2.5, p: 1.875, borderRadius: 0.5 }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>📊 עדיפויות קיימות:</Typography>
             {prioritiesStore.priorities.length === 0 ? (
-                <p style={{ color: '#999' }}>אין עדיפויות</p>
+                <Typography sx={{ color: '#999' }}>אין עדיפויות</Typography>
             ) : (
-                <ul style={{ listStyle: 'none', padding: 0 }}>
+                <Box component="ul" sx={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
                     {prioritiesStore.priorities.map((priority) => (
-                        <li key={priority.id} style={{ padding: '8px', backgroundColor: '#f5f5f5', marginBottom: '5px', borderRadius: '4px' }}>
-                            <strong>{priority.name}</strong> (ID: {priority.id})
-                        </li>
+                        <Box component="li" key={priority.id} sx={{ p: 1, backgroundColor: '#f5f5f5', borderRadius: 0.5 }}>
+                            <Typography><strong>{priority.name}</strong> (ID: {priority.id})</Typography>
+                        </Box>
                     ))}
-                </ul>
+                </Box>
             )}
-        </div>
+        </Paper>
     );
 });
 

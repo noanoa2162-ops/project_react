@@ -1,17 +1,23 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { observer } from "mobx-react-lite";
 import type { Ticket as TicketModel } from "../models";
-import { getTickets } from "../services/api.service";
+import { getTickets, getStatuses, getPriorities, getUsers } from "../services/api.service";
 import authStore from "../store/auth.store";
 import ticketsStore from "../store/tickets.store";
+import statusesStore from "../store/status.store";
+import prioritiesStore from "../store/priorities.store";
+import usersStore from "../store/users.store";
 import TicketComponent from "../components/ticket";
 import SearchTickets from "../components/searchTickets";
 import { useQuery } from "@tanstack/react-query";
+import { Box, Container, Typography, CircularProgress, Alert, Button, Paper } from "@mui/material";
 
 const AllTickets: React.FC = observer(() => {
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredTickets, setFilteredTickets] = useState<TicketModel[]>([]);
+  const [hasActiveFilter, setHasActiveFilter] = useState<boolean>(false);
 
   // בדוק אם יש token - אם לא, חזור ללוגין
   if (!authStore.token) {
@@ -19,101 +25,166 @@ const AllTickets: React.FC = observer(() => {
     return null;
   }
 
-  const { data } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["tickets"],
     queryFn: async () => {
-      ticketsStore.setLoading(true);
-      try {
-        const ticketsData = await getTickets(authStore.token!);
-        ticketsStore.getTickets(ticketsData);
-        return ticketsData;
-      } catch (err) {
-        ticketsStore.setError(err instanceof Error ? err.message : 'שגיאה בטעינת כרטיסים');
-        ticketsStore.setLoading(false);
-        throw err;
+      const ticketsData = await getTickets(authStore.token!);
+      ticketsStore.getTickets(ticketsData);
+      if (!hasActiveFilter) {
+        setFilteredTickets(ticketsData);
       }
+      return ticketsData;
     },
-    staleTime: 0,
-    gcTime: Infinity,
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true
+    staleTime: Infinity, // תמיד תחזוק כטריים עד invalidate
+    gcTime: Infinity, // שמור בקאש לעד
+    refetchOnWindowFocus: true, // אבל כשחוזרים לtab - טען
+    refetchOnReconnect: true // וכשחוזרים מ-offline - טען
   });
 
-  // אתחל את filteredTickets בעם הכרטיסים בעת הטעינה הראשונה
-  if (data && filteredTickets.length === 0) {
-    setFilteredTickets(data);
-  }
+  // טעינת סטטוסים - באופן עצלן (lazy)
+  useQuery({
+    queryKey: ["statuses"],
+    queryFn: async () => {
+      const data = await getStatuses(authStore.token!);
+      statusesStore.setStatuses(data);
+      return data;
+    },
+    staleTime: 60 * 60 * 1000, // שעה אחת
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    enabled: !!authStore.token
+  });
 
-  if (ticketsStore.isLoading) {
+  // טעינת עדיפויות
+  useQuery({
+    queryKey: ["priorities"],
+    queryFn: async () => {
+      const data = await getPriorities(authStore.token!);
+      prioritiesStore.setPriorities(data);
+      return data;
+    },
+    staleTime: 60 * 60 * 1000, // שעה אחת
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    enabled: !!authStore.token
+  });
+
+  // טעינת משתמשים (לכל המשתמשים - כדי לראות שמות)
+  useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const data = await getUsers(authStore.token!);
+      usersStore.setUsers(data);
+      return data;
+    },
+    staleTime: 60 * 60 * 1000, // שעה אחת
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    enabled: !!authStore.token
+  });
+
+  // פילטור הכרטיסים עם useMemo - יחושב מחדש רק כש-data או filteredTickets משתנים
+  const displayTickets = useMemo(() => {
+    if (!data) return [];
+    return hasActiveFilter ? filteredTickets : data;
+  }, [data, filteredTickets, hasActiveFilter]);
+
+  if (isLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '100px' }}>
-        <div style={{ fontSize: '48px', marginBottom: '20px' }}>⏳</div>
-        <p style={{ fontSize: '18px', color: '#7f8c8d' }}>טוען כרטיסים...</p>
-      </div>
+      <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <Box sx={{ textAlign: 'center' }}>
+          <CircularProgress size={80} sx={{ mb: 2 }} />
+          <Typography variant="h6" color="textSecondary">טוען כרטיסים...</Typography>
+        </Box>
+      </Container>
     );
   }
 
-  if (ticketsStore.error) {
+  if (error) {
     return (
-      <div style={{ textAlign: 'center', padding: '100px' }}>
-        <div style={{ fontSize: '48px', marginBottom: '20px' }}>❌</div>
-        <p style={{ fontSize: '18px', color: '#e74c3c' }}>שגיאה: {ticketsStore.error}</p>
-        <button 
-          onClick={() => window.location.reload()} 
-          style={{ marginTop: '20px', padding: '10px 20px', cursor: 'pointer', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '4px', fontSize: '16px' }}
-        >
-          נסה שוב
-        </button>
-      </div>
+      <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <Box sx={{ textAlign: 'center', width: '100%' }}>
+          <Typography variant="h3" sx={{ mb: 2 }}>⚠️</Typography>
+          <Typography variant="h5" color="error" sx={{ mb: 2 }}>אירעה שגיאה</Typography>
+          <Typography variant="body1" color="textSecondary" sx={{ mb: 3, maxWidth: '500px', mx: 'auto' }}>
+            {error instanceof Error ? error.message : 'שגיאה בטעינת כרטיסים'}
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+            <Button variant="contained" color="primary" onClick={() => window.location.reload()}>
+              🔄 נסה שוב
+            </Button>
+            <Button variant="outlined" onClick={() => navigate('/dashboard')}>
+              🏠 חזור לדף הבית
+            </Button>
+          </Box>
+        </Box>
+      </Container>
     );
   }
 
-  const tickets = ticketsStore.tickets || [];
-  
-  // הצגת כרטיסים - או חיפוש אם יש, או את כל הכרטיסים
-  const displayTickets = filteredTickets.length > 0 ? filteredTickets : tickets;
+  const role = authStore.currentUser?.role;
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1 style={{ color: '#2c3e50', marginBottom: '20px' }}>📋 כל הכרטיסים</h1>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Typography variant="h4" component="h1" sx={{ color: '#2c3e50', mb: 3, fontWeight: 'bold' }}>
+        📋 כל הכרטיסים
+      </Typography>
 
       {/* אזור חיפוש */}
-      <div style={{ marginBottom: '30px', padding: '15px', backgroundColor: '#ecf0f1', borderRadius: '8px' }}>
+      <Paper sx={{ mb: 4, p: 2, backgroundColor: '#ecf0f1' }}>
         <SearchTickets 
-          tickets={tickets}
-          onSearch={setFilteredTickets}
+          tickets={data || []}
+          onSearch={(filtered) => {
+            setFilteredTickets(filtered);
+            setHasActiveFilter(true);
+          }}
+          onSearchTermChange={setSearchTerm}
         />
-        {filteredTickets.length === 0 && tickets.length > 0 && filteredTickets !== tickets ? (
-          <p style={{ color: '#e74c3c' }}>❌ לא נמצאו כרטיסים התואמים החיפוש</p>
+        {displayTickets.length === 0 && (data || []).length > 0 ? (
+          <Alert severity="error" sx={{ mt: 2 }}>❌ לא נמצאו כרטיסים התואמים את הסינון</Alert>
         ) : (
-          <p style={{ color: '#7f8c8d', fontSize: '14px' }}>
-            מוצגים {displayTickets.length} מתוך {tickets.length} כרטיסים
-          </p>
+          <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 2 }}>
+            מוצגים {displayTickets.length} מתוך {(data || []).length} כרטיסים
+          </Typography>
         )}
-      </div>
+      </Paper>
 
       {/* רשימת כרטיסים */}
       {displayTickets.length === 0 ? (
-        <div style={{
-          backgroundColor: '#ecf0f1',
-          padding: '40px',
-          borderRadius: '8px',
-          textAlign: 'center',
-          color: '#7f8c8d'
-        }}>
-          <p style={{ fontSize: '18px' }}>😔 לא נמצאו כרטיסים</p>
-        </div>
+        <Paper sx={{ p: 5, textAlign: 'center', backgroundColor: '#ecf0f1' }}>
+          <Typography variant="h2" sx={{ mb: 2 }}>
+            {role === 'customer' ? '📝' : role === 'agent' ? '📋' : '📊'}
+          </Typography>
+          <Typography variant="h5" sx={{ color: '#2c3e50', mb: 2 }}>
+            {(searchTerm || displayTickets.length === 0) ? 'לא נמצאו כרטיסים' : 
+             role === 'customer' ? 'אין לך כרטיסים עדיין' :
+             role === 'agent' ? 'אין כרטיסים שהוקצו אליך' :
+             'אין כרטיסים במערכת'}
+          </Typography>
+          <Typography variant="body1" color="textSecondary" sx={{ mb: 3 }}>
+            {searchTerm ? 'נסה לשנות את מונח החיפוש או הסינונים' :
+             role === 'customer' ? 'צור כרטיס חדש כדי להתחיל' :
+             role === 'agent' ? 'המתן להקצאת כרטיסים מהמנהל' :
+             'לקוחות יכולים ליצור כרטיסים חדשים'}
+          </Typography>
+          {role === 'customer' && !searchTerm && (
+            <Button 
+              variant="contained" 
+              color="success"
+              onClick={() => navigate('/tickets/new')}
+            >
+              ➕ צור כרטיס חדש
+            </Button>
+          )}
+        </Paper>
       ) : (
-        <div style={{ display: 'grid', gap: '15px' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {displayTickets.map((ticket: TicketModel) => (
-            <TicketComponent 
-              key={ticket.id}
-              ticket={ticket} 
-            />
+            <TicketComponent key={ticket.id} ticket={ticket} />
           ))}
-        </div>
+        </Box>
       )}
-    </div>
+    </Container>
   );
 });
 

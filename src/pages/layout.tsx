@@ -2,6 +2,7 @@ import { createBrowserRouter, Outlet } from "react-router-dom";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { observer } from "mobx-react-lite";
+import { Box } from "@mui/material";
 import Footer from "../components/footer";
 import Header from "../components/header";
 import Dashboard from "./dashboard";
@@ -9,7 +10,6 @@ import NewTicket from "./newTicket";
 import AllTickets from "./allTickets";
 import Error from "./error";
 import TicketDetails from "./ticketDetails";
-import TicketComments from "./ticketComments";
 import Login from "./login";
 import PrivateRoute from "../components/privateRoute";
 import authStore from "../store/auth.store";
@@ -18,13 +18,14 @@ import { getMe } from "../services/api.service";
 interface LayoutProps {
 }
 const Layout: React.FC<LayoutProps> = observer(() => {
-    // טוען את היוזר מהשרת לפי הטוקן - תמיד!
+    // טוען את היוזר מהשרת לפי הטוקן - פעם אחת בלבד!
     const { data: user } = useQuery({
         queryKey: ["currentUser", authStore.token],
         queryFn: () => getMe(authStore.token!),
         enabled: !!authStore.token,
-        staleTime: 0,
-        refetchOnWindowFocus: true,
+        staleTime: Infinity, // קושר למשך כל הסשן
+        gcTime: 30 * 60 * 1000, // שמור לשדה 30 דקות
+        refetchOnWindowFocus: false, // אל תבדוק בחזרה ל-focus
     });
 
     useEffect(() => {
@@ -36,9 +37,9 @@ const Layout: React.FC<LayoutProps> = observer(() => {
     return (
         <div>
             <Header />
-            <main>
+            <Box component="main" sx={{ paddingTop: '70px', minHeight: 'calc(100vh - 70px)' }}>
                 <Outlet />
-            </main>
+            </Box>
             <Footer />
         </div>
     );
@@ -69,12 +70,8 @@ export const layoutRouter = createBrowserRouter([
                 element: <PrivateRoute><AllTickets /></PrivateRoute>
             },
             {
-                path: "tickets/:id/details", 
+                path: "tickets/:id", 
                 element: <PrivateRoute><TicketDetails /></PrivateRoute>
-            },
-            {
-                path: "tickets/:id/comments", 
-                element: <PrivateRoute><TicketComments /></PrivateRoute>
             },
         ]
     },

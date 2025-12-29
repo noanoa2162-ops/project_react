@@ -12,7 +12,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { getMe, getToken, registerUser } from "../services/api.service";
 import authStore from "../store/auth.store";
 
-interface HookFormProps {
+interface LoginFormData {
   name: string;
   email: string;
   password: string;
@@ -23,12 +23,12 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<HookFormProps>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<LoginFormData>({
     defaultValues: { name: "", email: "", password: "" }
   });
 
   const { mutate, isPending, isError } = useMutation({
-    mutationFn: async (formData: HookFormProps) => {
+    mutationFn: async (formData: LoginFormData) => {
       if (!isLogin) {
         await registerUser(formData.name, formData.email, formData.password);
       }
@@ -43,7 +43,7 @@ const Login: React.FC = () => {
     onError: (err) => console.error("Login Error:", err)
   });
 
-  const onSubmit = (data: HookFormProps) => mutate(data);
+  const onSubmit = (data: LoginFormData) => mutate(data);
 
   const toggleMode = () => {
     setIsLogin((prev) => !prev);
@@ -74,11 +74,11 @@ const Login: React.FC = () => {
             }}
           >
             <Typography variant="h5" component="h1" sx={{ fontWeight: 500, mb: 1, color: '#111827', letterSpacing: '0.02em' }}>
-              {isLogin ? "Welcome back" : "Create your account"}
+              {isLogin ? "ברוכים השבים" : "צור חשבון חדש"}
             </Typography>
             
             <Typography variant="body2" sx={{ mb: 5, color: '#6B7280', fontWeight: 400 }}>
-              {isLogin ? "Please sign in to continue" : "Join our platform"}
+              {isLogin ? "התחבר כדי להמשיך" : "הצטרף לפלטפורמה שלנו"}
             </Typography>
 
             <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -86,9 +86,17 @@ const Login: React.FC = () => {
                 <TextField
                   fullWidth
                   margin="normal"
-                  label="Name"
+                  label="שם מלא"
                   variant="standard"
-                  {...register("name", { required: !isLogin ? "Name is required" : false })}
+                  {...register("name", { 
+                    required: !isLogin ? "שם מלא הוא שדה חובה" : false,
+                    minLength: { value: 2, message: "השם חייב להכיל לפחות 2 תווים" },
+                    maxLength: { value: 50, message: "השם ארוך מדי (מקסימום 50 תווים)" },
+                    pattern: { 
+                      value: /^[א-תa-zA-Z\s]+$/, 
+                      message: "השם יכול להכיל רק אותיות ורווחים" 
+                    }
+                  })}
                   error={!!errors.name}
                   helperText={errors.name?.message}
                   sx={{ mb: 2 }}
@@ -98,12 +106,15 @@ const Login: React.FC = () => {
               <TextField
                 fullWidth
                 margin="normal"
-                label="Email"
+                label="אימייל"
                 autoComplete="email"
                 variant="standard"
                 {...register("email", { 
-                    required: "Email is required",
-                    pattern: { value: /^\S+@\S+$/i, message: "Invalid email" }
+                    required: "אימייל הוא שדה חובה",
+                    pattern: { 
+                      value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i, 
+                      message: "כתובת אימייל לא תקינה" 
+                    }
                 })}
                 error={!!errors.email}
                 helperText={errors.email?.message}
@@ -113,10 +124,20 @@ const Login: React.FC = () => {
               <TextField
                 fullWidth
                 margin="normal"
-                label="Password"
+                label="סיסמה"
                 type={showPassword ? "text" : "password"}
                 variant="standard"
-                {...register("password", { required: "Password is required", minLength: { value: 4, message: "Too short" } })}
+                {...register("password", { 
+                  required: "סיסמה היא שדה חובה", 
+                  minLength: { 
+                    value: 4, 
+                    message: "הסיסמה חייבת להכיל לפחות 4 תווים" 
+                  },
+                  maxLength: {
+                    value: 50,
+                    message: "הסיסמה ארוכה מדי (מקסימום 50 תווים)"
+                  }
+                })}
                 error={!!errors.password}
                 helperText={errors.password?.message}
                 sx={{ mb: 4 }}
@@ -133,7 +154,7 @@ const Login: React.FC = () => {
 
               {isError && (
                 <Alert severity="error" variant="outlined" sx={{ mb: 3, border: '1px solid #FEE2E2', color: '#B91C1C', borderRadius: 2 }}>
-                  Authentication failed.
+                  ההתחברות נכשלה. אנא בדוק את פרטי ההתחברות שלך.
                 </Alert>
               )}
 
@@ -156,7 +177,7 @@ const Login: React.FC = () => {
                   boxShadow: 'none'
                 }}
               >
-                {isPending ? <CircularProgress size={20} color="inherit" /> : (isLogin ? "Sign in" : "Sign up")}
+                {isPending ? <CircularProgress size={20} color="inherit" /> : (isLogin ? "התחבר" : "הרשם")}
               </Button>
 
               <Box sx={{ mt: 4 }}>
@@ -175,7 +196,7 @@ const Login: React.FC = () => {
                     '&:hover': { color: '#111827' }
                   }}
                 >
-                  {isLogin ? "New user? Create account" : "Have an account? Sign in"}
+                  {isLogin ? "משתמש חדש? צור חשבון" : "יש לך חשבון? התחבר"}
                 </Link>
               </Box>
             </form>

@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { useQuery } from "@tanstack/react-query";
+import { Paper, Typography, Box } from "@mui/material";
 import statusesStore from "../store/status.store";
 import authStore from "../store/auth.store";
 import { getStatuses } from "../services/api.service";
@@ -16,20 +17,20 @@ const StatusesList: React.FC = observer(() => {
         staleTime: Infinity
     });
     return (
-        <div style={{ marginTop: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '4px' }}>
-            <h3>סטטוסים קיימים:</h3>
+        <Paper sx={{ mt: 2.5, p: 1.875, borderRadius: 0.5 }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>🔄 סטטוסים קיימים:</Typography>
             {statusesStore.statuses.length === 0 ? (
-                <p style={{ color: '#999' }}>אין סטטוסים</p>
+                <Typography sx={{ color: '#999' }}>אין סטטוסים</Typography>
             ) : (
-                <ul style={{ listStyle: 'none', padding: 0 }}>
+                <Box component="ul" sx={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
                     {statusesStore.statuses.map((status) => (
-                        <li key={status.id} style={{ padding: '8px', backgroundColor: '#f5f5f5', marginBottom: '5px', borderRadius: '4px' }}>
-                            <strong>{status.name}</strong> (ID: {status.id})
-                        </li>
+                        <Box component="li" key={status.id} sx={{ p: 1, backgroundColor: '#f5f5f5', borderRadius: 0.5 }}>
+                            <Typography><strong>{status.name}</strong> (ID: {status.id})</Typography>
+                        </Box>
                     ))}
-                </ul>
+                </Box>
             )}
-        </div>
+        </Paper>
     );
 });
 

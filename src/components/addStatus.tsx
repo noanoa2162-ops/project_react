@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
+import { Paper, Typography, Box, TextField, Button, Alert } from "@mui/material";
 import authStore from "../store/auth.store";
 import { newStatuses } from "../services/api.service";
 import statusesStore from "../store/status.store";
@@ -58,26 +59,30 @@ const AddStatus: React.FC<addStatusProps> = observer(() => {
     };
 
     return (
-        <div style={{ marginTop: '20px', padding: '15px', border: '1px solid #ccc', borderRadius: '4px' }}>
-            <h3>הוסף סטטוס חדש</h3>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px' }}>
-                <input
+        <Paper sx={{ marginTop: '20px', padding: '15px' }}>
+            <Typography variant="h6">הוסף סטטוס חדש</Typography>
+            <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <TextField
                     type="text"
                     value={statusName}
                     onChange={(e) => setStatusName(e.target.value)}
                     placeholder="הכנס שם סטטוס"
-                    style={{ flex: 1, padding: '8px' }}
+                    fullWidth
+                    size="small"
                 />
-                <button 
+                <Button 
                     type="submit" 
-                    disabled={isPending} 
-                    style={{ padding: '8px 16px', backgroundColor: '#2196F3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                    disabled={isPending}
+                    variant="contained"
+                    color="primary"
+                    sx={{ minWidth: 'fit-content' }}
+                >
                     {isPending ? "מוסיף..." : "הוסף"}
-                </button>
-            </form>
-            {successMessage && <p style={{ color: 'green', marginTop: '10px', fontWeight: 'bold' }}>✓ {successMessage}</p>}
-            {errorMessage && <p style={{ color: 'red', marginTop: '10px', fontWeight: 'bold' }}>✗ {errorMessage}</p>}
-        </div>
+                </Button>
+            </Box>
+            {successMessage && <Alert severity="success" sx={{ marginTop: '10px' }}>✓ {successMessage}</Alert>}
+            {errorMessage && <Alert severity="error" sx={{ marginTop: '10px' }}>✗ {errorMessage}</Alert>}
+        </Paper>
     );
 });
 

@@ -1,6 +1,7 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
+import { Snackbar, Alert, TextField, MenuItem } from "@mui/material";
 import { changeTicketStatus } from "../services/api.service";
 import authStore from "../store/auth.store";
 import ticketsStore from "../store/tickets.store";
@@ -13,6 +14,8 @@ interface changeStatusProps {
 }
 const ChangeStatus: React.FC<changeStatusProps> = observer(({ ticketId, currentStatusId }) => {
     const [selectedStatus, setSelectedStatus] = useState<number>(currentStatusId);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const queryClient = useQueryClient();
     
     // קבלת סטטוסים מ-store (observer יראה עדכונים)
     const statuses = statusesStore.statuses.length > 0 
@@ -23,13 +26,21 @@ const ChangeStatus: React.FC<changeStatusProps> = observer(({ ticketId, currentS
             return await changeTicketStatus(String(ticketId), newStatusId, authStore.token!);
         },
         onSuccess: (updatedTicket) => {
-            ticketsStore.updateTicketById(updatedTicket);
+            // עדכון הטיקט בstore עם כל הנתונים החדשים
+            const enrichedTicket = {
+                ...updatedTicket,
+                status_name: statusesStore.statuses.find(s => s.id === updatedTicket.status_id)?.name || updatedTicket.status_name
+            };
+            ticketsStore.updateTicketById(enrichedTicket);
             setSelectedStatus(updatedTicket.status_id || currentStatusId);
-            alert('✅ הסטטוס השתנה בהצלחה!');
+            setShowSuccess(true);
+            
+            // עדכן את הקאש של React Query
+            queryClient.invalidateQueries({ queryKey: ["tickets"] });
         }
     });
-    const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = event.target.value;
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const value = (event.target as HTMLInputElement).value;
         if (!value) return;
         const newStatusId = parseInt(value, 10);
         setSelectedStatus(newStatusId);
@@ -37,16 +48,33 @@ const ChangeStatus: React.FC<changeStatusProps> = observer(({ ticketId, currentS
     };
 
     return (
-        <div style={{marginTop: '10px'}}>
-            <select value={String(selectedStatus)} onChange={handleChange} style={{padding: '8px', borderRadius: '4px', border: '1px solid #ccc', cursor: 'pointer'}}>
-                <option value="">בחר סטטוס</option>
+        <>
+            <TextField
+                select
+                size="small"
+                value={String(selectedStatus)}
+                onChange={handleChange}
+                sx={{ marginTop: 1, width: '100%' }}
+            >
+                <MenuItem value="">בחר סטטוס</MenuItem>
                 {statuses.map((status: Status) => (
-                    <option key={status.id} value={String(status.id)}>
+                    <MenuItem key={status.id} value={String(status.id)}>
                         {status.name}
-                    </option>
+                    </MenuItem>
                 ))}
-            </select>
-        </div>
+            </TextField>
+            
+            <Snackbar 
+                open={showSuccess} 
+                autoHideDuration={3000} 
+                onClose={() => setShowSuccess(false)}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setShowSuccess(false)} severity="success" sx={{ width: '100%' }}>
+                    ✅ הסטטוס השתנה בהצלחה!
+                </Alert>
+            </Snackbar>
+        </>
     );
 });
 

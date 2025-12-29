@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { observer } from "mobx-react-lite";
+import { Paper, Typography, Box, TextField, Button } from "@mui/material";
 import authStore from "../store/auth.store";
 import { addCommentToTicket } from "../services/api.service";
 
@@ -34,40 +35,46 @@ const AddComment: React.FC<AddCommentProps> = observer(({ ticketId }) => {
     };
 
     return (
-        <div style={{ marginTop: '20px', padding: '15px', border: '1px solid #ccc', borderRadius: '4px' }}>
-            <h3>הוסף תגובה</h3>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <textarea
+        <Paper elevation={0} sx={{ p: 4, borderRadius: '24px', bgcolor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+            <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, color: '#334155' }}>הוסף תגובה חדשה</Typography>
+            <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <TextField
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
-                    placeholder="כתוב תגובה..."
-                    style={{ 
-                        padding: '10px', 
-                        borderRadius: '4px', 
-                        border: '1px solid #ccc',
-                        fontFamily: 'Arial',
-                        minHeight: '80px',
-                        resize: 'vertical'
-                    }}
+                    placeholder="כתוב כאן את תגובתך..."
+                    multiline
+                    rows={3}
                     disabled={isPending}
+                    fullWidth
+                    sx={{
+                        '& .MuiOutlinedInput-root': {
+                            borderRadius: '16px',
+                            bgcolor: '#fff',
+                            fontSize: '1.1rem',
+                            '& fieldset': { borderWidth: '1px' },
+                        }
+                    }}
                 />
-                <button
+                <Button
                     type="submit"
                     disabled={isPending}
-                    style={{
-                        padding: '10px 15px',
-                        backgroundColor: '#4CAF50',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        opacity: isPending ? 0.6 : 1
+                    variant="contained"
+                    size="medium"
+                    sx={{ 
+                        alignSelf: 'flex-end',
+                        px: 5,
+                        py: 1.2,
+                        borderRadius: '12px',
+                        fontSize: '1rem',
+                        fontWeight: 800,
+                        boxShadow: '0 6px 12px rgba(0,0,0,0.08)',
+                        textTransform: 'none'
                     }}
                 >
                     {isPending ? "שולח..." : "שלח תגובה"}
-                </button>
-            </form>
-        </div>
+                </Button>
+            </Box>
+        </Paper>
     );
 });
 
