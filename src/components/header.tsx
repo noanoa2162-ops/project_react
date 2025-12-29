@@ -19,20 +19,23 @@ const Header: React.FC = observer(() => {
     }
 
     return (
-        <AppBar position="fixed" sx={{ backgroundColor: '#2c3e50' }}>
-            <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', paddingX: '30px' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
-                    <Typography variant="h6" sx={{ fontSize: '24px', fontWeight: 'bold' }}>
+        <AppBar position="fixed" elevation={0} sx={{ backgroundColor: '#ffffff', borderBottom: '1px solid #e5e7eb' }}>
+            <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', paddingX: '40px', height: '70px' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
+                    <Typography variant="h6" sx={{ fontSize: '22px', fontWeight: 800, color: '#000000', letterSpacing: '-0.02em' }}>
                         🎫 Helpdesk
                     </Typography>
                     <Link to="/dashboard" style={{ textDecoration: 'none' }}>
                         <Button
-                            color="inherit"
                             sx={{
-                                fontSize: '16px',
+                                fontSize: '15px',
+                                fontWeight: 600,
+                                color: '#4b5563',
                                 padding: '8px 16px',
+                                borderRadius: '8px',
                                 '&:hover': {
-                                    backgroundColor: 'rgba(255,255,255,0.2)'
+                                    backgroundColor: '#f3f4f6',
+                                    color: '#000000'
                                 }
                             }}
                         >
@@ -41,17 +44,24 @@ const Header: React.FC = observer(() => {
                     </Link>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <Typography sx={{ fontSize: '16px' }}>
-                        שלום, {name} 👋
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
+                    <Typography sx={{ fontSize: '15px', fontWeight: 600, color: '#374151' }}>
+                        שלום, <span style={{ color: '#064e3b', fontWeight: 800 }}>{name}</span> 👋
                     </Typography>
                     <Button
                         onClick={handleLogout}
-                        variant="contained"
-                        color="error"
+                        variant="outlined"
                         sx={{
-                            fontSize: '16px',
-                            fontWeight: 'bold'
+                            fontSize: '14px',
+                            fontWeight: 700,
+                            color: '#000000',
+                            borderColor: '#e5e7eb',
+                            borderRadius: '8px',
+                            px: 3,
+                            '&:hover': {
+                                borderColor: '#000000',
+                                backgroundColor: '#f9fafb'
+                            }
                         }}
                     >
                         🚪 יציאה

@@ -90,18 +90,18 @@ const TicketDetails: React.FC<TicketDetailsProps> = observer(() => {
   });
   
   return (
-    <Box sx={{ bgcolor: '#f4f7f9', minHeight: '100vh', py: 3 }}>
+    <Box sx={{ bgcolor: '#ffffff', minHeight: '100vh', py: 4 }}>
       <Container maxWidth="lg">
-        <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 3 }}>
-          <Avatar sx={{ bgcolor: '#3498db', width: 60, height: 60, boxShadow: '0 4px 12px rgba(52, 152, 219, 0.2)' }}>
-            <TicketIcon sx={{ fontSize: 32 }} />
+        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Avatar sx={{ bgcolor: '#064e3b', width: 64, height: 64, boxShadow: '0 4px 12px rgba(6, 78, 59, 0.15)' }}>
+            <TicketIcon sx={{ fontSize: 32, color: '#ffffff' }} />
           </Avatar>
           <Box>
-            <Typography variant="h4" sx={{ color: '#2c3e50', fontWeight: 900, fontSize: { xs: '1.8rem', md: '2.2rem' } }}>
+            <Typography variant="h4" sx={{ color: '#000000', fontWeight: 800, fontSize: { xs: '1.8rem', md: '2.2rem' }, letterSpacing: '-0.02em' }}>
               פנייה #{id}
             </Typography>
-            <Typography variant="body2" sx={{ color: '#7f8c8d', fontWeight: 500, opacity: 0.8 }}>
-              מרכז ניהול פניות ותמיכה טכנית • מערכת Helpdesk
+            <Typography variant="body2" sx={{ color: '#6b7280', fontWeight: 500, letterSpacing: '0.01em' }}>
+              מערכת ניהול פניות • Helpdesk Professional
             </Typography>
           </Box>
         </Box>
@@ -109,40 +109,40 @@ const TicketDetails: React.FC<TicketDetailsProps> = observer(() => {
         <Grid container spacing={4}>
           {/* צד ימין - פרטי הפנייה */}
           <Grid size={{ xs: 12, md: 7 }}>
-            <Card sx={{ borderRadius: '20px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.05)' }}>
-              <Box sx={{ p: 2.5, bgcolor: '#fff', borderBottom: '1px solid #f0f0f0' }}>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: '#2c3e50', fontSize: '1.25rem' }}>
+            <Card sx={{ borderRadius: '16px', overflow: 'hidden', boxShadow: 'none', border: '1px solid #e5e7eb' }}>
+              <Box sx={{ p: 3, bgcolor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#000000', fontSize: '1.25rem' }}>
                   {ticketFromStore?.subject}
                 </Typography>
               </Box>
               
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ mb: 3 }}>
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
-                    <DescIcon sx={{ color: '#3498db', fontSize: 20 }} />
-                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#34495e' }}>
+              <CardContent sx={{ p: 4 }}>
+                <Box sx={{ mb: 4 }}>
+                  <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2 }}>
+                    <DescIcon sx={{ color: '#064e3b', fontSize: 22 }} />
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#000000' }}>
                       תיאור הפנייה
                     </Typography>
                   </Stack>
-                  <Paper elevation={0} sx={{ p: 2.5, bgcolor: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                    <Typography variant="body2" sx={{ color: '#1e293b', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                  <Paper elevation={0} sx={{ p: 3, bgcolor: '#ffffff', borderRadius: '12px', border: '1px solid #f3f4f6' }}>
+                    <Typography variant="body1" sx={{ color: '#1f2937', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
                       {ticketFromStore?.description}
                     </Typography>
                   </Paper>
                 </Box>
 
-                <Divider sx={{ my: 3, opacity: 0.1 }} />
+                <Divider sx={{ my: 4, borderColor: '#f3f4f6' }} />
 
                 <Box>
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-                    <ChatIcon sx={{ color: '#3498db', fontSize: 20 }} />
-                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#34495e' }}>
+                  <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 3 }}>
+                    <ChatIcon sx={{ color: '#064e3b', fontSize: 22 }} />
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#000000' }}>
                       שיחה ותגובות
                     </Typography>
                   </Stack>
                   <Box>
                     <CommentsList ticketId={ticketFromStore?.id || 0} />
-                    <Box sx={{ mt: 3 }}>
+                    <Box sx={{ mt: 4 }}>
                       <AddComment ticketId={ticketFromStore?.id || 0} />
                     </Box>
                   </Box>
@@ -155,24 +155,31 @@ const TicketDetails: React.FC<TicketDetailsProps> = observer(() => {
           <Grid size={{ xs: 12, md: 5 }}>
             <Stack spacing={3}>
               {/* כרטיס סטטוס ועדיפות */}
-              <Card sx={{ p: 4, borderRadius: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.05)' }}>
-                <Typography variant="overline" sx={{ fontWeight: 800, color: '#94a3b8', mb: 2, display: 'block', letterSpacing: '1px' }}>
+              <Card sx={{ p: 4, borderRadius: '20px', boxShadow: 'none', border: '1px solid #e5e7eb' }}>
+                <Typography variant="overline" sx={{ fontWeight: 800, color: '#9ca3af', mb: 3, display: 'block', letterSpacing: '1.5px' }}>
                   סטטוס וניהול
                 </Typography>
                 
-                <Stack spacing={3}>
+                <Stack spacing={4}>
                   <Box>
-                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#64748b' }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: '#374151' }}>
                       עדיפות
                     </Typography>
                     <Chip 
                       label={ticketFromStore?.priority_name} 
-                      color={ticketFromStore?.priority_name === 'High' ? 'error' : 'warning'}
-                      size="medium"
-                      sx={{ fontWeight: 700, borderRadius: '8px', width: '100%', height: '45px', fontSize: '1rem' }}
+                      sx={{ 
+                        fontWeight: 700, 
+                        borderRadius: '10px', 
+                        width: '100%', 
+                        height: '48px', 
+                        fontSize: '1rem',
+                        bgcolor: ticketFromStore?.priority_name === 'High' ? '#fef2f2' : '#fffbeb',
+                        color: ticketFromStore?.priority_name === 'High' ? '#991b1b' : '#92400e',
+                        border: `1px solid ${ticketFromStore?.priority_name === 'High' ? '#fee2e2' : '#fef3c7'}`
+                      }}
                     />
                     {role === "admin" && (
-                      <Box sx={{ mt: 1.5 }}>
+                      <Box sx={{ mt: 2 }}>
                         <ChangePriority 
                           ticketId={ticketFromStore?.id || 0} 
                           currentPriorityId={ticketFromStore?.priority_id || 0} 
@@ -181,21 +188,27 @@ const TicketDetails: React.FC<TicketDetailsProps> = observer(() => {
                     )}
                   </Box>
 
-                  <Divider />
+                  <Divider sx={{ borderColor: '#f3f4f6' }} />
 
                   <Box>
-                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: '#64748b' }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: '#374151' }}>
                       סטטוס נוכחי
                     </Typography>
                     <Chip 
                       label={ticketFromStore?.status_name} 
-                      variant="outlined"
-                      color={ticketFromStore?.status_name === 'open' ? 'success' : 'default'}
-                      size="medium"
-                      sx={{ fontWeight: 700, borderRadius: '8px', width: '100%', height: '45px', fontSize: '1rem' }}
+                      sx={{ 
+                        fontWeight: 700, 
+                        borderRadius: '10px', 
+                        width: '100%', 
+                        height: '48px', 
+                        fontSize: '1rem',
+                        bgcolor: ticketFromStore?.status_name === 'open' ? '#f0fdf4' : '#f9fafb',
+                        color: ticketFromStore?.status_name === 'open' ? '#166534' : '#4b5563',
+                        border: `1px solid ${ticketFromStore?.status_name === 'open' ? '#dcfce7' : '#e5e7eb'}`
+                      }}
                     />
                     {(role === "admin" || role === "agent") && (
-                      <Box sx={{ mt: 1.5 }}>
+                      <Box sx={{ mt: 2 }}>
                         <ChangeStatus 
                           ticketId={ticketFromStore?.id || 0} 
                           currentStatusId={ticketFromStore?.status_id || 0} 
@@ -207,31 +220,31 @@ const TicketDetails: React.FC<TicketDetailsProps> = observer(() => {
               </Card>
 
               {/* כרטיס מידע נוסף */}
-              <Card sx={{ p: 4, borderRadius: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.05)' }}>
-                <Typography variant="overline" sx={{ fontWeight: 800, color: '#94a3b8', mb: 2, display: 'block', letterSpacing: '1px' }}>
+              <Card sx={{ p: 4, borderRadius: '20px', boxShadow: 'none', border: '1px solid #e5e7eb' }}>
+                <Typography variant="overline" sx={{ fontWeight: 800, color: '#9ca3af', mb: 3, display: 'block', letterSpacing: '1.5px' }}>
                   פרטי מערכת
                 </Typography>
                 
-                <Stack spacing={3}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-                    <Avatar sx={{ width: 48, height: 48, bgcolor: '#eff6ff', color: '#3b82f6' }}>
-                      <UserIcon sx={{ fontSize: 24 }} />
+                <Stack spacing={3.5}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <Avatar sx={{ width: 52, height: 52, bgcolor: '#f3f4f6', color: '#111827' }}>
+                      <UserIcon sx={{ fontSize: 26 }} />
                     </Avatar>
                     <Box sx={{ minWidth: 0, flex: 1 }}>
-                      <Typography variant="body2" sx={{ color: '#94a3b8', fontWeight: 700, display: 'block', mb: 0.2 }}>לקוח</Typography>
-                      <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', lineHeight: 1.2 }}>
+                      <Typography variant="body2" sx={{ color: '#6b7280', fontWeight: 700, display: 'block', mb: 0.5 }}>לקוח</Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 800, color: '#000000', lineHeight: 1.2 }}>
                         {createdByName}
                       </Typography>
                     </Box>
                   </Box>
 
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-                    <Avatar sx={{ width: 48, height: 48, bgcolor: '#f0fdf4', color: '#22c55e' }}>
-                      <DateIcon sx={{ fontSize: 24 }} />
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <Avatar sx={{ width: 52, height: 52, bgcolor: '#f3f4f6', color: '#111827' }}>
+                      <DateIcon sx={{ fontSize: 26 }} />
                     </Avatar>
                     <Box sx={{ minWidth: 0, flex: 1 }}>
-                      <Typography variant="body2" sx={{ color: '#94a3b8', fontWeight: 700, display: 'block', mb: 0.2 }}>תאריך יצירה</Typography>
-                      <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b' }}>
+                      <Typography variant="body2" sx={{ color: '#6b7280', fontWeight: 700, display: 'block', mb: 0.5 }}>תאריך יצירה</Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 800, color: '#000000' }}>
                         {ticketFromStore?.created_at ? new Date(ticketFromStore.created_at).toLocaleDateString('he-IL') : '-'}
                       </Typography>
                     </Box>
@@ -239,19 +252,19 @@ const TicketDetails: React.FC<TicketDetailsProps> = observer(() => {
 
                   {role === "admin" && (
                     <>
-                      <Divider />
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-                        <Avatar sx={{ width: 48, height: 48, bgcolor: '#fff7ed', color: '#f59e0b' }}>
-                          <AgentIcon sx={{ fontSize: 24 }} />
+                      <Divider sx={{ borderColor: '#f3f4f6' }} />
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <Avatar sx={{ width: 52, height: 52, bgcolor: '#f3f4f6', color: '#111827' }}>
+                          <AgentIcon sx={{ fontSize: 26 }} />
                         </Avatar>
                         <Box sx={{ minWidth: 0, flex: 1 }}>
-                          <Typography variant="body2" sx={{ color: '#94a3b8', fontWeight: 700, display: 'block', mb: 0.2 }}>סוכן מטפל</Typography>
-                          <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', lineHeight: 1.2 }}>
+                          <Typography variant="body2" sx={{ color: '#6b7280', fontWeight: 700, display: 'block', mb: 0.5 }}>סוכן מטפל</Typography>
+                          <Typography variant="h6" sx={{ fontWeight: 800, color: '#000000', lineHeight: 1.2 }}>
                             {ticketFromStore?.assigned_to_name || "לא משויך"}
                           </Typography>
                         </Box>
                       </Box>
-                      <Box sx={{ mt: 1.5 }}>
+                      <Box sx={{ mt: 2 }}>
                         <ToAgent 
                           ticketId={ticketFromStore?.id || 0} 
                           currentAssignedTo={ticketFromStore?.assigned_to || null} 

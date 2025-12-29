@@ -35,8 +35,8 @@ const AddComment: React.FC<AddCommentProps> = observer(({ ticketId }) => {
     };
 
     return (
-        <Paper elevation={0} sx={{ p: 4, borderRadius: '24px', bgcolor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-            <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, color: '#334155' }}>הוסף תגובה חדשה</Typography>
+        <Paper elevation={0} sx={{ p: 4, borderRadius: '20px', bgcolor: '#ffffff', border: '1px solid #e5e7eb' }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, color: '#000000' }}>הוסף תגובה חדשה</Typography>
             <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 <TextField
                     value={commentText}
@@ -48,10 +48,12 @@ const AddComment: React.FC<AddCommentProps> = observer(({ ticketId }) => {
                     fullWidth
                     sx={{
                         '& .MuiOutlinedInput-root': {
-                            borderRadius: '16px',
-                            bgcolor: '#fff',
-                            fontSize: '1.1rem',
-                            '& fieldset': { borderWidth: '1px' },
+                            borderRadius: '12px',
+                            bgcolor: '#f9fafb',
+                            fontSize: '1rem',
+                            '& fieldset': { borderColor: '#e5e7eb' },
+                            '&:hover fieldset': { borderColor: '#d1d5db' },
+                            '&.Mui-focused fieldset': { borderColor: '#064e3b' },
                         }
                     }}
                 />
@@ -62,12 +64,14 @@ const AddComment: React.FC<AddCommentProps> = observer(({ ticketId }) => {
                     size="medium"
                     sx={{ 
                         alignSelf: 'flex-end',
-                        px: 5,
+                        px: 4,
                         py: 1.2,
-                        borderRadius: '12px',
-                        fontSize: '1rem',
-                        fontWeight: 800,
-                        boxShadow: '0 6px 12px rgba(0,0,0,0.08)',
+                        borderRadius: '10px',
+                        fontSize: '0.95rem',
+                        fontWeight: 700,
+                        bgcolor: '#064e3b',
+                        '&:hover': { bgcolor: '#065f46' },
+                        boxShadow: 'none',
                         textTransform: 'none'
                     }}
                 >

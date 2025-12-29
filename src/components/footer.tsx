@@ -9,15 +9,16 @@ const Footer: FunctionComponent<FooterProps> = () => {
         <Box
             component="footer"
             sx={{
-                backgroundColor: '#34495e',
-                color: '#ecf0f1',
+                backgroundColor: '#ffffff',
+                color: '#6b7280',
                 textAlign: 'center',
-                padding: '20px',
-                marginTop: '50px'
+                padding: '30px',
+                marginTop: '60px',
+                borderTop: '1px solid #e5e7eb'
             }}
         >
-            <Typography sx={{ fontSize: '14px', margin: 0 }}>
-                © {new Date().getFullYear()} Helpdesk System | נוצר עבור ניהול כרטיסי תמיכה
+            <Typography sx={{ fontSize: '13px', fontWeight: 500, letterSpacing: '0.02em' }}>
+                © {new Date().getFullYear()} Helpdesk System • Professional Support Management
             </Typography>
         </Box>
     );

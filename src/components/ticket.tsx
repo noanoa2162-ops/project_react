@@ -54,14 +54,13 @@ const Ticket: React.FC<TicketProps> = observer(({ ticket }) => {
   return (
     <Card 
       sx={{ 
-        margin: '16px 0', 
-        borderRadius: '12px',
-        transition: 'all 0.3s ease',
-        border: '1px solid #e0e0e0',
+        borderRadius: '16px',
+        transition: 'all 0.2s ease',
+        border: '1px solid #e5e7eb',
+        boxShadow: 'none',
         '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-          borderColor: '#3498db'
+          borderColor: '#064e3b',
+          bgcolor: '#f9fafb'
         }
       }}
     >
@@ -72,15 +71,15 @@ const Ticket: React.FC<TicketProps> = observer(({ ticket }) => {
             <Typography 
               variant="h6" 
               sx={{ 
-                fontWeight: 'bold', 
-                color: '#2c3e50',
+                fontWeight: 700, 
+                color: '#000000',
                 mb: 0.5,
                 lineHeight: 1.2
               }}
             >
               {ticket.subject}
             </Typography>
-            <Typography variant="caption" color="textSecondary">
+            <Typography variant="caption" sx={{ color: '#9ca3af', fontWeight: 500 }}>
               #ID: {ticket.id}
             </Typography>
           </Box>
@@ -88,16 +87,22 @@ const Ticket: React.FC<TicketProps> = observer(({ ticket }) => {
             <Chip 
               label={ticket.priority_name || 'ללא עדיפות'} 
               size="small" 
-              color={getPriorityColor(ticket.priority_name) as any}
-              icon={<PriorityIcon sx={{ fontSize: '14px !important' }} />}
-              sx={{ fontWeight: 'bold' }}
+              sx={{ 
+                fontWeight: 700,
+                bgcolor: ticket.priority_name === 'High' ? '#fef2f2' : '#f3f4f6',
+                color: ticket.priority_name === 'High' ? '#991b1b' : '#374151',
+                border: '1px solid transparent'
+              }}
             />
             <Chip 
               label={ticket.status_name || 'ללא סטטוס'} 
               size="small" 
               variant="outlined"
-              color={getStatusColor(ticket.status_name) as any}
-              sx={{ fontWeight: 'bold' }}
+              sx={{ 
+                fontWeight: 700,
+                borderColor: '#e5e7eb',
+                color: '#4b5563'
+              }}
             />
           </Stack>
         </Box>

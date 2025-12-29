@@ -23,38 +23,40 @@ const CommentsList: React.FC<CommentsListProps> = observer(({ ticketId }) => {
 
     return (
         <Box sx={{ mt: 3 }}>
-            <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, color: '#334155' }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, color: '#000000' }}>
                 תגובות ({comments.length})
             </Typography>
             {comments.length === 0 ? (
-                <Paper sx={{ p: 4, textAlign: 'center', borderRadius: '20px', bgcolor: '#f8fafc', border: '2px dashed #e2e8f0' }}>
-                    <Typography variant="body1" sx={{ color: '#94a3b8' }}>אין תגובות עדיין. היה הראשון להגיב!</Typography>
+                <Paper sx={{ p: 4, textAlign: 'center', borderRadius: '16px', bgcolor: '#ffffff', border: '1px dashed #e5e7eb' }}>
+                    <Typography variant="body1" sx={{ color: '#9ca3af' }}>אין תגובות עדיין. היה הראשון להגיב!</Typography>
                 </Paper>
             ) : (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                     {comments.map((comment: Comment) => (
                         <Paper
                             key={comment.id}
                             elevation={0}
                             sx={{
                                 p: 3,
-                                borderRadius: '16px',
-                                backgroundColor: '#fff',
-                                border: '1px solid #e2e8f0',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-                                transition: 'transform 0.2s',
-                                '&:hover': { transform: 'translateX(-5px)' }
+                                borderRadius: '12px',
+                                backgroundColor: '#ffffff',
+                                border: '1px solid #f3f4f6',
+                                transition: 'all 0.2s ease',
+                                '&:hover': { 
+                                    borderColor: '#e5e7eb',
+                                    bgcolor: '#f9fafb'
+                                }
                             }}
                         >
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                                <Typography sx={{ fontSize: '1rem', fontWeight: 800, color: '#3b82f6' }}>
+                                <Typography sx={{ fontSize: '0.95rem', fontWeight: 700, color: '#064e3b' }}>
                                     {comment.author_name}
                                 </Typography>
-                                <Typography sx={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 500 }}>
+                                <Typography sx={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: 500 }}>
                                     {new Date(comment.created_at).toLocaleString('he-IL')}
                                 </Typography>
                             </Box>
-                            <Typography sx={{ fontSize: '1.1rem', color: '#1e293b', lineHeight: 1.5 }}>
+                            <Typography sx={{ fontSize: '1rem', color: '#374151', lineHeight: 1.6 }}>
                                 {comment.content}
                             </Typography>
                         </Paper>

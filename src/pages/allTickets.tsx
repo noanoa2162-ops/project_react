@@ -125,13 +125,38 @@ const AllTickets: React.FC = observer(() => {
   const role = authStore.currentUser?.role;
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" component="h1" sx={{ color: '#2c3e50', mb: 3, fontWeight: 'bold' }}>
-        📋 כל הכרטיסים
-      </Typography>
+    <Container maxWidth="lg" sx={{ py: 5, bgcolor: '#ffffff', minHeight: '100vh' }}>
+      <Box sx={{ mb: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800, color: '#000000', letterSpacing: '-0.02em' }}>
+            ניהול פניות
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#6b7280', mt: 0.5, fontWeight: 500 }}>
+            צפייה, סינון וניהול של כל כרטיסי התמיכה במערכת
+          </Typography>
+        </Box>
+        {role === 'customer' && (
+          <Button 
+            variant="contained" 
+            onClick={() => navigate("/tickets/new")}
+            sx={{ 
+              bgcolor: '#064e3b', 
+              '&:hover': { bgcolor: '#065f46' },
+              borderRadius: '10px',
+              px: 4,
+              py: 1.2,
+              fontWeight: 700,
+              boxShadow: 'none',
+              textTransform: 'none'
+            }}
+          >
+            + פנייה חדשה
+          </Button>
+        )}
+      </Box>
 
       {/* אזור חיפוש */}
-      <Paper sx={{ mb: 4, p: 2, backgroundColor: '#ecf0f1' }}>
+      <Paper elevation={0} sx={{ p: 3, mb: 4, borderRadius: '16px', border: '1px solid #e5e7eb', bgcolor: '#f9fafb' }}>
         <SearchTickets 
           tickets={data || []}
           onSearch={(filtered) => {
@@ -141,9 +166,9 @@ const AllTickets: React.FC = observer(() => {
           onSearchTermChange={setSearchTerm}
         />
         {displayTickets.length === 0 && (data || []).length > 0 ? (
-          <Alert severity="error" sx={{ mt: 2 }}>❌ לא נמצאו כרטיסים התואמים את הסינון</Alert>
+          <Alert severity="info" sx={{ mt: 2, borderRadius: '10px' }}>לא נמצאו כרטיסים התואמים את הסינון</Alert>
         ) : (
-          <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 2 }}>
+          <Typography variant="caption" sx={{ display: 'block', mt: 2, color: '#6b7280', fontWeight: 500 }}>
             מוצגים {displayTickets.length} מתוך {(data || []).length} כרטיסים
           </Typography>
         )}
@@ -151,17 +176,17 @@ const AllTickets: React.FC = observer(() => {
 
       {/* רשימת כרטיסים */}
       {displayTickets.length === 0 ? (
-        <Paper sx={{ p: 5, textAlign: 'center', backgroundColor: '#ecf0f1' }}>
+        <Paper sx={{ p: 8, textAlign: 'center', borderRadius: '20px', border: '1px dashed #e5e7eb', bgcolor: '#ffffff' }}>
           <Typography variant="h2" sx={{ mb: 2 }}>
             {role === 'customer' ? '📝' : role === 'agent' ? '📋' : '📊'}
           </Typography>
-          <Typography variant="h5" sx={{ color: '#2c3e50', mb: 2 }}>
+          <Typography variant="h5" sx={{ color: '#000000', mb: 2, fontWeight: 700 }}>
             {(searchTerm || displayTickets.length === 0) ? 'לא נמצאו כרטיסים' : 
              role === 'customer' ? 'אין לך כרטיסים עדיין' :
              role === 'agent' ? 'אין כרטיסים שהוקצו אליך' :
              'אין כרטיסים במערכת'}
           </Typography>
-          <Typography variant="body1" color="textSecondary" sx={{ mb: 3 }}>
+          <Typography variant="body1" sx={{ color: '#6b7280', mb: 3 }}>
             {searchTerm ? 'נסה לשנות את מונח החיפוש או הסינונים' :
              role === 'customer' ? 'צור כרטיס חדש כדי להתחיל' :
              role === 'agent' ? 'המתן להקצאת כרטיסים מהמנהל' :
@@ -170,15 +195,22 @@ const AllTickets: React.FC = observer(() => {
           {role === 'customer' && !searchTerm && (
             <Button 
               variant="contained" 
-              color="success"
               onClick={() => navigate('/tickets/new')}
+              sx={{ 
+                bgcolor: '#064e3b', 
+                '&:hover': { bgcolor: '#065f46' },
+                borderRadius: '10px',
+                px: 4,
+                fontWeight: 700,
+                boxShadow: 'none'
+              }}
             >
               ➕ צור כרטיס חדש
             </Button>
           )}
         </Paper>
       ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           {displayTickets.map((ticket: TicketModel) => (
             <TicketComponent key={ticket.id} ticket={ticket} />
           ))}
