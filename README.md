@@ -1,101 +1,101 @@
-﻿#  Helpdesk Ticket Management System
+﻿# 🎫 מערכת ניהול פניות (Helpdesk)
 
-A modern Helpdesk system for managing tickets and appeals, built with React, TypeScript, and Material UI.
+מערכת מודרנית לניהול פניות ותמיכה, הבנויה ב-React, TypeScript ו-Material UI.
 
-##  Project Overview
+## 📋 סקירת הפרויקט
 
-This application allows users to manage support requests based on their roles:
-- **Customer**: Create new tickets, add comments, and view their own tickets.
-- **Agent**: View assigned tickets, update statuses, and add comments.
-- **Admin**: Full access to all tickets, assign tickets to agents, and manage global statuses and priorities.
-
----
-
-##  User Roles & Permissions
-
-### Customer
--  View only self-created tickets.
--  Open new support tickets.
--  Add comments to their own tickets.
-
-### Agent
--  View only tickets assigned to them.
--  Update ticket status.
--  Add comments to tickets.
-
-### Admin
--  View all tickets in the system.
--  Assign tickets to specific Agents.
--  Manage and change ticket statuses.
--  Add new priority levels.
--  Add new ticket statuses.
+אפליקציה זו מאפשרת למשתמשים לנהל פניות שירות בהתאם לתפקידם במערכת:
+- **לקוח (Customer)**: יצירת פניות חדשות, הוספת תגובות וצפייה בפניות האישיות שלו.
+- **סוכן (Agent)**: צפייה בפניות שהוקצו לו, עדכון סטטוסים והוספת תגובות.
+- **מנהל (Admin)**: גישה מלאה לכל הפניות, הקצאת פניות לסוכנים וניהול סטטוסים ועדיפויות גלובליים.
 
 ---
 
-##  Tech Stack
+## 👥 תפקידי משתמשים והרשאות
+
+### לקוח (Customer)
+- 📝 צפייה רק בפניות שהוא יצר.
+- ✨ פתיחת פניות שירות חדשות.
+- 💬 הוספת תגובות לפניות שלו.
+
+### סוכן (Agent)
+- 📌 צפייה רק בפניות שהוקצו לו.
+- 🔄 עדכון סטטוס הפנייה.
+- 💬 הוספת תגובות לפניות.
+
+### מנהל (Admin)
+- 👁️ צפייה בכל הפניות במערכת.
+- 🎯 הקצאת פניות לסוכנים ספציפיים.
+- 🔄 ניהול ושינוי סטטוסים של פניות.
+- ⭐ הוספת רמות עדיפות חדשות.
+- 📊 הוספת סטטוסים חדשים למערכת.
+
+---
+
+## 🛠️ טכנולוגיות (Tech Stack)
 
 - **Frontend**: React 19 + TypeScript
-- **State Management**: MobX (Global State)
-- **Data Fetching**: TanStack React Query v5 (Server State)
+- **State Management**: MobX (ניהול מצב גלובלי)
+- **Data Fetching**: TanStack React Query v5 (ניהול מצב שרת)
 - **UI Library**: Material-UI (MUI) v7
 - **Routing**: React Router v7
-- **HTTP Client**: Axios (with manual token passing)
+- **HTTP Client**: Axios
 - **Form Handling**: React Hook Form
 - **Build Tool**: Vite
 
 ---
 
-##  Installation & Setup
+## 📦 התקנה והרצה
 
-### Prerequisites:
+### דרישות קדם:
 - Node.js 18+
-- npm or yarn
+- npm או yarn
 
-### Steps:
+### שלבים:
 
-1. **Clone the repository**
+1. **שכפול המאגר (Clone)**
    ```bash
    git clone <repo-url>
    cd project_react
    ```
 
-2. **Install dependencies**
+2. **התקנת תלויות (Dependencies)**
    ```bash
    npm install
    ```
 
-3. **Run the Backend Server**
-   The server must be running at `http://localhost:4000`.
-   Refer to the [Backend Repository](https://github.com/sarataber/helpdesk-api) for instructions.
+3. **הרצת השרת (Backend)**
+   השרת חייב לרוץ בכתובת `http://localhost:4000`.
+   ניתן למצוא הוראות ב-[מאגר השרת](https://github.com/sarataber/helpdesk-api).
 
-4. **Start the Application**
+4. **הרצת האפליקציה**
    ```bash
    npm run dev
    ```
-   The app will be available at `http://localhost:5174`.
+   האפליקציה תהיה זמינה בכתובת `http://localhost:5173`.
 
 ---
 
-##  Key Features
+## 🚀 תכונות עיקריות
 
-- **Role-Based Access Control (RBAC)**: Secure routes and UI elements based on user roles.
-- **Global State Management**: Centralized auth and data stores using MobX.
-- **Optimized Data Fetching**: Efficient server state management with React Query.
-- **Responsive Design**: Fully responsive UI built with MUI.
-- **Hebrew Localization**: User-friendly Hebrew interface and error messages.
-
----
-
-##  Routes
-
-- `/login` - Authentication form.
-- `/dashboard` - Role-specific landing page.
-- `/tickets` - List of all accessible tickets.
-- `/tickets/:id` - Ticket details and comments.
-- `/tickets/new` - Create a new ticket (Customer only).
-- `*` - Custom 404 Error page.
+- **ניהול הרשאות (RBAC)**: אבטחת נתיבים ורכיבי ממשק משתמש לפי תפקיד המשתמש.
+- **ניהול מצב גלובלי**: שימוש ב-MobX לניהול אימות נתונים ומידע גלובלי.
+- **טעינת נתונים אופטימלית**: ניהול יעיל של נתוני שרת עם React Query.
+- **עיצוב רספונסיבי**: ממשק משתמש מותאם לכל המכשירים באמצעות MUI.
+- **לוקליזציה לעברית**: ממשק משתמש והודעות שגיאה בעברית מלאה וידידותית.
 
 ---
 
-##  License
-This project was developed as part of a Helpdesk Management System assignment.
+## 🔐 נתיבים (Routes)
+
+- `/login` - טופס התחברות.
+- `/dashboard` - דף נחיתה מותאם לפי תפקיד.
+- `/tickets` - רשימת כל הפניות הנגישות.
+- `/tickets/:id` - פרטי פנייה ותגובות.
+- `/tickets/new` - יצירת פנייה חדשה (לקוחות בלבד).
+- `*` - דף שגיאה 404 מותאם אישית.
+
+---
+
+## 📄 רישיון
+פרויקט זה פותח כחלק ממטלה לניהול מערכת Helpdesk.
