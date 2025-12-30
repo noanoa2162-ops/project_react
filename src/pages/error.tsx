@@ -1,11 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { Container, Box, Typography, Button, Stack } from "@mui/material";
+import authStore from "../store/auth.store";
+import { observer } from "mobx-react-lite";
 
 interface ErrorProps {
   message?: string;
 } 
-const Error: React.FC<ErrorProps> = ({ message }) => {
+const Error: React.FC<ErrorProps> = observer(({ message }) => {
   const navigate = useNavigate();
+  const isAuthenticated = authStore.isAuthenticated;
   
   return (
     <Container maxWidth="sm">
@@ -70,26 +73,40 @@ const Error: React.FC<ErrorProps> = ({ message }) => {
         
         {/* Action Buttons */}
         <Stack direction="row" spacing={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            onClick={() => navigate('/dashboard')}
-          >
-            🏠 חזור לדף הבית
-          </Button>
-          
-          <Button
-            variant="contained"
-            color="success"
-            size="large"
-            onClick={() => navigate('/tickets')}
-          >
-            📋 לכל הכרטיסים
-          </Button>
+          {isAuthenticated ? (
+            <>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={() => navigate('/dashboard')}
+              >
+                🏠 חזור לדף הבית
+              </Button>
+              
+              <Button
+                variant="contained"
+                color="success"
+                size="large"
+                onClick={() => navigate('/tickets')}
+              >
+                📋 לכל הפניות
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={() => navigate('/login')}
+              sx={{ px: 6 }}
+            >
+              🔐 התחבר למערכת
+            </Button>
+          )}
         </Stack>
       </Box>
     </Container>
   );
-};
+});
 export default Error;

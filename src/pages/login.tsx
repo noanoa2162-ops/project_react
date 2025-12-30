@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { 
   Box, Button, TextField, Typography, Container, Paper, 
   InputAdornment, IconButton, CircularProgress, Alert, Link, Fade 
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import axios from "axios";
 
 // Services & Stores
 import { getMe, getToken, registerUser } from "../services/api.service";
 import authStore from "../store/auth.store";
+import { observer } from "mobx-react-lite";
 
 interface LoginFormData {
   name: string;
@@ -18,16 +20,20 @@ interface LoginFormData {
   password: string;
 }
 
-const Login: React.FC = () => {
+const Login: React.FC = observer(() => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  if (authStore.isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<LoginFormData>({
     defaultValues: { name: "", email: "", password: "" }
   });
 
-  const { mutate, isPending, isError } = useMutation({
+  const { mutate, isPending, isError, error } = useMutation({
     mutationFn: async (formData: LoginFormData) => {
       if (!isLogin) {
         await registerUser(formData.name, formData.email, formData.password);
@@ -39,9 +45,18 @@ const Login: React.FC = () => {
     onSuccess: (data) => {
       authStore.login(data.token, data.user);
       navigate("/dashboard");
-    },
-    onError: (err) => console.error("Login Error:", err)
+    }
   });
+
+  const getErrorMessage = (err: unknown) => {
+    if (axios.isAxiosError(err)) {
+      if (!err.response) return "לא ניתן להתחבר למערכת כרגע. אנא בדוק את החיבור לאינטרנט או נסה שוב מאוחר יותר.";
+      if (err.response.status === 401) return "פרטי ההתחברות שגויים. אנא נסה שוב.";
+      if (err.response.status === 409) return "כתובת האימייל כבר קיימת במערכת.";
+      if (err.response.status >= 500) return "אירעה תקלה זמנית במערכת. אנחנו מטפלים בזה, אנא נסה שוב בעוד כמה דקות.";
+    }
+    return "אירעה שגיאה בתהליך. אנא נסה שוב.";
+  };
 
   const onSubmit = (data: LoginFormData) => mutate(data);
 
@@ -49,6 +64,11 @@ const Login: React.FC = () => {
     setIsLogin((prev) => !prev);
     reset();
   };
+
+  if (authStore.isAuthenticated) {
+    navigate("/dashboard");
+    return null;
+  }
 
   return (
     <Box sx={{ 
@@ -154,7 +174,7 @@ const Login: React.FC = () => {
 
               {isError && (
                 <Alert severity="error" variant="outlined" sx={{ mb: 3, border: '1px solid #FEE2E2', color: '#B91C1C', borderRadius: 2 }}>
-                  ההתחברות נכשלה. אנא בדוק את פרטי ההתחברות שלך.
+                  {getErrorMessage(error)}
                 </Alert>
               )}
 
@@ -205,6 +225,6 @@ const Login: React.FC = () => {
       </Container>
     </Box>
   );
-};
+});
 
 export default Login;

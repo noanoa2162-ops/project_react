@@ -2,12 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { observer } from "mobx-react-lite";
 import type { Ticket as TicketModel } from "../models";
-import { getTickets, getStatuses, getPriorities, getUsers } from "../services/api.service";
+import { getTickets } from "../services/api.service";
 import authStore from "../store/auth.store";
 import ticketsStore from "../store/tickets.store";
-import statusesStore from "../store/status.store";
-import prioritiesStore from "../store/priorities.store";
-import usersStore from "../store/users.store";
 import TicketComponent from "../components/ticket";
 import SearchTickets from "../components/searchTickets";
 import { useQuery } from "@tanstack/react-query";
@@ -16,85 +13,34 @@ import { Box, Container, Typography, CircularProgress, Alert, Button, Paper } fr
 const AllTickets: React.FC = observer(() => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [filteredTickets, setFilteredTickets] = useState<TicketModel[]>([]);
-  const [hasActiveFilter, setHasActiveFilter] = useState<boolean>(false);
-
-  // בדוק אם יש token - אם לא, חזור ללוגין
-  if (!authStore.token) {
-    navigate('/login');
-    return null;
-  }
+  const [filteredTickets, setFilteredTickets] = useState<TicketModel[] | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["tickets"],
     queryFn: async () => {
-      const ticketsData = await getTickets(authStore.token!);
-      ticketsStore.getTickets(ticketsData);
-      if (!hasActiveFilter) {
-        setFilteredTickets(ticketsData);
-      }
-      return ticketsData;
-    },
-    staleTime: Infinity, // תמיד תחזוק כטריים עד invalidate
-    gcTime: Infinity, // שמור בקאש לעד
-    refetchOnWindowFocus: true, // אבל כשחוזרים לtab - טען
-    refetchOnReconnect: true // וכשחוזרים מ-offline - טען
-  });
-
-  // טעינת סטטוסים - באופן עצלן (lazy)
-  useQuery({
-    queryKey: ["statuses"],
-    queryFn: async () => {
-      const data = await getStatuses(authStore.token!);
-      statusesStore.setStatuses(data);
+      const data = await getTickets(authStore.token!);
+      ticketsStore.getTickets(data);
       return data;
     },
-    staleTime: 60 * 60 * 1000, // שעה אחת
-    gcTime: 30 * 60 * 1000,
-    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: Infinity,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
     enabled: !!authStore.token
   });
 
-  // טעינת עדיפויות
-  useQuery({
-    queryKey: ["priorities"],
-    queryFn: async () => {
-      const data = await getPriorities(authStore.token!);
-      prioritiesStore.setPriorities(data);
-      return data;
-    },
-    staleTime: 60 * 60 * 1000, // שעה אחת
-    gcTime: 30 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    enabled: !!authStore.token
-  });
-
-  // טעינת משתמשים (לכל המשתמשים - כדי לראות שמות)
-  useQuery({
-    queryKey: ["users"],
-    queryFn: async () => {
-      const data = await getUsers(authStore.token!);
-      usersStore.setUsers(data);
-      return data;
-    },
-    staleTime: 60 * 60 * 1000, // שעה אחת
-    gcTime: 30 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    enabled: !!authStore.token
-  });
-
-  // פילטור הכרטיסים עם useMemo - יחושב מחדש רק כש-data או filteredTickets משתנים
+  // פילטור הפניות עם useMemo
   const displayTickets = useMemo(() => {
-    if (!data) return [];
-    return hasActiveFilter ? filteredTickets : data;
-  }, [data, filteredTickets, hasActiveFilter]);
+    if (filteredTickets !== null) return filteredTickets;
+    return data || [];
+  }, [data, filteredTickets]);
 
   if (isLoading) {
     return (
       <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
         <Box sx={{ textAlign: 'center' }}>
           <CircularProgress size={80} sx={{ mb: 2 }} />
-          <Typography variant="h6" color="textSecondary">טוען כרטיסים...</Typography>
+          <Typography variant="h6" color="textSecondary">טוען פניות...</Typography>
         </Box>
       </Container>
     );
@@ -107,7 +53,7 @@ const AllTickets: React.FC = observer(() => {
           <Typography variant="h3" sx={{ mb: 2 }}>⚠️</Typography>
           <Typography variant="h5" color="error" sx={{ mb: 2 }}>אירעה שגיאה</Typography>
           <Typography variant="body1" color="textSecondary" sx={{ mb: 3, maxWidth: '500px', mx: 'auto' }}>
-            {error instanceof Error ? error.message : 'שגיאה בטעינת כרטיסים'}
+            לא הצלחנו לטעון את הפניות כרגע. אנא נסה שוב בעוד מספר רגעים.
           </Typography>
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
             <Button variant="contained" color="primary" onClick={() => window.location.reload()}>
@@ -132,7 +78,7 @@ const AllTickets: React.FC = observer(() => {
             ניהול פניות
           </Typography>
           <Typography variant="body2" sx={{ color: '#6b7280', mt: 0.5, fontWeight: 500 }}>
-            צפייה, סינון וניהול של כל כרטיסי התמיכה במערכת
+            צפייה, סינון וניהול של כל פניות התמיכה במערכת
           </Typography>
         </Box>
         {role === 'customer' && (
@@ -161,36 +107,35 @@ const AllTickets: React.FC = observer(() => {
           tickets={data || []}
           onSearch={(filtered) => {
             setFilteredTickets(filtered);
-            setHasActiveFilter(true);
           }}
           onSearchTermChange={setSearchTerm}
         />
         {displayTickets.length === 0 && (data || []).length > 0 ? (
-          <Alert severity="info" sx={{ mt: 2, borderRadius: '10px' }}>לא נמצאו כרטיסים התואמים את הסינון</Alert>
+          <Alert severity="info" sx={{ mt: 2, borderRadius: '10px' }}>לא נמצאו פניות התואמות את הסינון</Alert>
         ) : (
           <Typography variant="caption" sx={{ display: 'block', mt: 2, color: '#6b7280', fontWeight: 500 }}>
-            מוצגים {displayTickets.length} מתוך {(data || []).length} כרטיסים
+            מוצגות {displayTickets.length} מתוך {(data || []).length} פניות
           </Typography>
         )}
       </Paper>
 
-      {/* רשימת כרטיסים */}
+      {/* רשימת פניות */}
       {displayTickets.length === 0 ? (
         <Paper sx={{ p: 8, textAlign: 'center', borderRadius: '20px', border: '1px dashed #e5e7eb', bgcolor: '#ffffff' }}>
           <Typography variant="h2" sx={{ mb: 2 }}>
             {role === 'customer' ? '📝' : role === 'agent' ? '📋' : '📊'}
           </Typography>
           <Typography variant="h5" sx={{ color: '#000000', mb: 2, fontWeight: 700 }}>
-            {(searchTerm || displayTickets.length === 0) ? 'לא נמצאו כרטיסים' : 
-             role === 'customer' ? 'אין לך כרטיסים עדיין' :
-             role === 'agent' ? 'אין כרטיסים שהוקצו אליך' :
-             'אין כרטיסים במערכת'}
+            {(searchTerm || displayTickets.length === 0) ? 'לא נמצאו פניות' : 
+             role === 'customer' ? 'אין לך פניות עדיין' :
+             role === 'agent' ? 'אין פניות שהוקצו אליך' :
+             'אין פניות במערכת'}
           </Typography>
           <Typography variant="body1" sx={{ color: '#6b7280', mb: 3 }}>
             {searchTerm ? 'נסה לשנות את מונח החיפוש או הסינונים' :
-             role === 'customer' ? 'צור כרטיס חדש כדי להתחיל' :
-             role === 'agent' ? 'המתן להקצאת כרטיסים מהמנהל' :
-             'לקוחות יכולים ליצור כרטיסים חדשים'}
+             role === 'customer' ? 'צור פנייה חדשה כדי להתחיל' :
+             role === 'agent' ? 'המתן להקצאת פניות מהמנהל' :
+             'לקוחות יכולים ליצור פניות חדשות'}
           </Typography>
           {role === 'customer' && !searchTerm && (
             <Button 
@@ -205,7 +150,7 @@ const AllTickets: React.FC = observer(() => {
                 boxShadow: 'none'
               }}
             >
-              ➕ צור כרטיס חדש
+              ➕ צור פנייה חדשה
             </Button>
           )}
         </Paper>

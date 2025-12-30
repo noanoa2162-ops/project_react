@@ -1,4 +1,6 @@
 
+import type { Comment } from "./comment";
+
 export interface Ticket {
   id: number,
   subject: string,
@@ -15,7 +17,7 @@ export interface Ticket {
   created_by_name: string;
   created_by_email: string;
   assigned_to_email: string | null;
-  comments: []
+  comments: Comment[]
 }
 
 

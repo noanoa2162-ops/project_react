@@ -16,28 +16,22 @@ const Dashboard = observer(() => {
   const role = authStore.currentUser?.role;
   const name = authStore.currentUser?.name;
 
-  // טעינת כרטיסים עם React Query (רק לשמירה ב-store)
-  useQuery({
+  // טעינת פניות עם React Query
+  const { isLoading, error } = useQuery({
     queryKey: ["tickets"],
     queryFn: async () => {
-      ticketsStore.setLoading(true);
-      try {
-        const data = await getTickets(authStore.token!);
-        ticketsStore.getTickets(data);
-        return data;
-      } catch (err) {
-        ticketsStore.setError(err instanceof Error ? err.message : 'שגיאה בטעינת כרטיסים');
-        ticketsStore.setLoading(false);
-        throw err;
-      }
+      const data = await getTickets(authStore.token!);
+      ticketsStore.getTickets(data);
+      return data;
     },
     staleTime: 0,
     gcTime: Infinity,
     refetchOnWindowFocus: true,
-    refetchOnReconnect: true
+    refetchOnReconnect: true,
+    enabled: !!authStore.token
   });
 
-  if (ticketsStore.isLoading) {
+  if (isLoading) {
     return (
       <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
         <Box sx={{ textAlign: 'center' }}>
@@ -48,12 +42,12 @@ const Dashboard = observer(() => {
     );
   }
 
-  if (ticketsStore.error) {
+  if (error) {
     return (
       <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
         <Box sx={{ textAlign: 'center' }}>
           <Typography variant="h3" sx={{ mb: 2 }}>❌</Typography>
-          <Typography variant="h6" color="error" sx={{ mb: 2 }}>שגיאה: {ticketsStore.error}</Typography>
+          <Typography variant="h6" color="error" sx={{ mb: 2 }}>לא הצלחנו לטעון את המידע. אנא נסה שוב.</Typography>
           <Button variant="contained" onClick={() => window.location.reload()}>נסה שוב</Button>
         </Box>
       </Container>
@@ -68,12 +62,12 @@ const Dashboard = observer(() => {
       
       <Box sx={{ mb: 3, display: 'flex', gap: 2 }}>
         <Button variant="contained" color="primary" onClick={() => navigate('/tickets')}>
-          💼 לכל הכרטיסים
+          💼 לכל הפניות
         </Button>
         
         {role === 'customer' && (
           <Button variant="contained" color="success" onClick={() => navigate('/tickets/new')}>
-            ➕ צור כרטיס חדש
+            ➕ פנייה חדשה
           </Button>
         )}
       </Box>

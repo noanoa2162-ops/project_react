@@ -3,25 +3,13 @@ import type { Ticket } from "../models";
 
 class TicketsStore {
     tickets: Ticket[] = [];
-    isLoading: boolean = false;
-    error: string | null = null;
 
     constructor() {
         makeAutoObservable(this);
     }
-     
-    setLoading(loading: boolean) {
-        this.isLoading = loading;
-    }
-
-    setError(error: string | null) {
-        this.error = error;
-    }
 
     getTickets(tickets: Ticket[]) {
         this.tickets = [...tickets];
-        this.isLoading = false;
-        this.error = null;
     }
 
     addTicket(ticket: Ticket) {

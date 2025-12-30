@@ -17,7 +17,6 @@ import {
   AccessTime as TimeIcon, 
   Person as PersonIcon, 
   AssignmentInd as AgentIcon,
-  PriorityHigh as PriorityIcon,
   Info as InfoIcon
 } from "@mui/icons-material";
 import authStore from "../store/auth.store";
@@ -31,26 +30,6 @@ const Ticket: React.FC<TicketProps> = observer(({ ticket }) => {
   const role = authStore.currentUser?.role;
   const assignedToName = ticket.assigned_to_name || usersStore.getUserNameById(ticket.assigned_to);
   
-  // פונקציה לקבלת צבע לפי סטטוס
-  const getStatusColor = (status: string | null) => {
-    switch (status?.toLowerCase()) {
-      case 'open': return 'success';
-      case 'closed': return 'error';
-      case 'pending': return 'warning';
-      default: return 'default';
-    }
-  };
-
-  // פונקציה לקבלת צבע לפי עדיפות
-  const getPriorityColor = (priority: string | null) => {
-    switch (priority?.toLowerCase()) {
-      case 'high': return 'error';
-      case 'medium': return 'warning';
-      case 'low': return 'info';
-      default: return 'default';
-    }
-  };
-
   return (
     <Card 
       sx={{ 
@@ -128,7 +107,7 @@ const Ticket: React.FC<TicketProps> = observer(({ ticket }) => {
         {/* מידע נוסף */}
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', justifyContent: 'space-between' }}>
           <Stack direction="row" spacing={2} alignItems="center">
-            {/* יוצר הכרטיס */}
+            {/* יוצר הפנייה */}
             {(role === 'admin' || role === 'agent') && (
               <Tooltip title="יוצר הפנייה">
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>

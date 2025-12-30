@@ -105,14 +105,14 @@ const SearchTickets: React.FC<SearchTicketsProps> = observer(({ tickets, onSearc
     if (onSearchTermChange) {
       onSearchTermChange('');
     }
-    // מחזיר את כל הכרטיסים
+    // מחזיר את כל הפניות
     onSearch(tickets);
   };
 
   return (
     <Box sx={{ mb: 3 }}>
       <Typography variant="h6" sx={{ mb: 2, color: '#2c3e50', fontWeight: 'bold' }}>
-        🔍 חיפוש וסינון כרטיסים
+        🔍 חיפוש וסינון פניות
       </Typography>
       
       {/* חיפוש טקסט */}

@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { observer } from "mobx-react-lite";
 import { Paper, Typography, Box, TextField, Button } from "@mui/material";
-import authStore from "../store/auth.store";
 import { addCommentToTicket } from "../services/api.service";
+import authStore from "../store/auth.store";
 
 interface AddCommentProps {
     ticketId: number;
@@ -11,6 +11,7 @@ interface AddCommentProps {
 
 const AddComment: React.FC<AddCommentProps> = observer(({ ticketId }) => {
     const [commentText, setCommentText] = useState<string>("");
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const queryClient = useQueryClient();
 
     const { mutate: addComment, isPending } = useMutation({
@@ -18,19 +19,25 @@ const AddComment: React.FC<AddCommentProps> = observer(({ ticketId }) => {
             return await addCommentToTicket(String(ticketId), content, authStore.token!);
         },
         onSuccess: () => {
-            // ניקוי ה-input
             setCommentText("");
-            // רענון רשימת התגובות
+            setErrorMsg(null);
             queryClient.invalidateQueries({ queryKey: ["comments", ticketId] });
         },
-        onError: (error) => {
-            console.error("Error adding comment:", error);
+        onError: () => {
+            setErrorMsg("שגיאה בשליחת התגובה. נסה שוב.");
         }
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!commentText.trim()) return;
+        if (!commentText.trim()) {
+            setErrorMsg("לא ניתן לשלוח תגובה ריקה");
+            return;
+        }
+        if (commentText.length < 2) {
+            setErrorMsg("התגובה קצרה מדי");
+            return;
+        }
         addComment(commentText);
     };
 
@@ -40,20 +47,25 @@ const AddComment: React.FC<AddCommentProps> = observer(({ ticketId }) => {
             <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 <TextField
                     value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
+                    onChange={(e) => {
+                        setCommentText(e.target.value);
+                        if (errorMsg) setErrorMsg(null);
+                    }}
                     placeholder="כתוב כאן את תגובתך..."
                     multiline
                     rows={3}
                     disabled={isPending}
+                    error={!!errorMsg}
+                    helperText={errorMsg}
                     fullWidth
                     sx={{
                         '& .MuiOutlinedInput-root': {
                             borderRadius: '12px',
                             bgcolor: '#f9fafb',
                             fontSize: '1rem',
-                            '& fieldset': { borderColor: '#e5e7eb' },
-                            '&:hover fieldset': { borderColor: '#d1d5db' },
-                            '&.Mui-focused fieldset': { borderColor: '#064e3b' },
+                            '& fieldset': { borderColor: errorMsg ? '#d32f2f' : '#e5e7eb' },
+                            '&:hover fieldset': { borderColor: errorMsg ? '#d32f2f' : '#d1d5db' },
+                            '&.Mui-focused fieldset': { borderColor: errorMsg ? '#d32f2f' : '#064e3b' },
                         }
                     }}
                 />

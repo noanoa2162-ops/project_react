@@ -1,14 +1,14 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { observer } from "mobx-react-lite";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { getPriorities, newTicket } from "../services/api.service";
+import { useState } from "react";
+import { newTicket } from "../services/api.service";
 import authStore from "../store/auth.store";
 import ticketsStore from "../store/tickets.store";
 import prioritiesStore from "../store/priorities.store";
 import type { Priority } from "../models";
 import { Container, Box, TextField, MenuItem, Button, Typography, Paper, Alert } from "@mui/material";
-import { useState } from "react";
 
 interface NewTicketFormData {
   subject: string;
@@ -27,19 +27,7 @@ const NewTicket = observer(() => {
     }
   });
 
-  // טעינת עדיפויות
-  useQuery({
-    queryKey: ["priorities"],
-    queryFn: async () => {
-      const data = await getPriorities(authStore.token!);
-      prioritiesStore.setPriorities(data);
-      return data;
-    },
-    staleTime: Infinity,
-    enabled: !!authStore.token
-  });
-
-  // יצירת טיקט חדש
+  // יצירת פנייה חדשה
   const { mutate: createTicket, isPending } = useMutation({
     mutationFn: async (formData: NewTicketFormData) => {
       return await newTicket(
@@ -77,19 +65,19 @@ const NewTicket = observer(() => {
     <Container maxWidth="sm" sx={{ py: 4 }}>
       {showSuccess && (
         <Alert severity="success" sx={{ mb: 3, fontSize: '1rem' }}>
-          ✅ כרטיס נוצר בהצלחה! מעביר אותך לדף הבית...
+          ✅ פנייה נוצרה בהצלחה! מעביר אותך לדף הבית...
         </Alert>
       )}
       <Paper sx={{ p: 4, boxShadow: 2 }}>
         <Typography variant="h4" component="h1" sx={{ mb: 4, fontWeight: 'bold', color: '#2c3e50' }}>
-          📝 יצירת כרטיס חדש
+          📝 פנייה חדשה
         </Typography>
         
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {/* שדה הנושא */}
           <TextField
             label="נושא"
-            placeholder="כתוב נושא לכרטיס"
+            placeholder="כתוב נושא לפנייה"
             fullWidth
             disabled={isPending}
             {...register("subject", {
@@ -148,7 +136,7 @@ const NewTicket = observer(() => {
             disabled={isPending}
             sx={{ mt: 2 }}
           >
-            {isPending ? "⏳ יוצר כרטיס..." : "✅ יצור כרטיס"}
+            {isPending ? "⏳ שולח פנייה..." : "✅ שלח פנייה"}
           </Button>
         </Box>
       </Paper>

@@ -1,15 +1,12 @@
-import { useLocation, useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { useQuery } from "@tanstack/react-query";
-import type { Ticket } from "../models";
 import authStore from "../store/auth.store";
 import ticketsStore from "../store/tickets.store";
 import usersStore from "../store/users.store";
-import statusesStore from "../store/status.store";
-import prioritiesStore from "../store/priorities.store";
-import { getStatuses, getPriorities, getUsers } from "../services/api.service";
+import { getTicketById } from "../services/api.service";
 import ChangePriority from "../components/changePriority";
-import ChangeStatus from "../components/changStatus";
+import ChangeStatus from "../components/changeStatus";
 import ToAgent from "../components/toAgent";
 import CommentsList from "../components/commentsList";
 import AddComment from "../components/addComment";
@@ -24,7 +21,9 @@ import {
   Grid, 
   Divider, 
   Stack,
-  Avatar
+  Avatar,
+  CircularProgress,
+  Button
 } from "@mui/material";
 import { 
   ConfirmationNumber as TicketIcon,
@@ -39,55 +38,47 @@ interface TicketDetailsProps {
 
 }
 const TicketDetails: React.FC<TicketDetailsProps> = observer(() => {
-  const {id} = useParams<{ id: string }>();
-
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const role = authStore.currentUser?.role;
-  const {state} = useLocation();
 
-  const currentTicket = state as Ticket;
-  // קבלת הטיקט מ-store אם הוא שם (כדי לראות עדכונים)
-  const ticketFromStore = ticketsStore.tickets.find(t => t.id === currentTicket?.id) || currentTicket;
+  // טעינת הטיקט מהשרת
+  const { data: ticket, isLoading: isLoadingTicket, error: ticketError } = useQuery({
+    queryKey: ["ticket", id],
+    queryFn: async () => {
+      const data = await getTicketById(id!, authStore.token!);
+      ticketsStore.updateTicketById(data);
+      return data;
+    },
+    enabled: !!id && !!authStore.token,
+    staleTime: 1000 * 60 * 5, // 5 דקות
+  });
+
+  // קבלת הטיקט מה-store כדי לראות עדכונים בזמן אמת (כמו שינוי סטטוס)
+  const ticketFromStore = ticketsStore.tickets.find(t => t.id === Number(id)) || ticket;
   
-  const createdByName = ticketFromStore?.created_by_name || usersStore.getUserNameById(ticketFromStore?.created_by);
+  const createdByName = ticketFromStore?.created_by_name || usersStore.getUserNameById(ticketFromStore?.created_by ?? null);
 
-  // טעינת סטטוסים
-  useQuery({
-    queryKey: ["statuses"],
-    queryFn: async () => {
-      const data = await getStatuses(authStore.token!);
-      statusesStore.setStatuses(data);
-      return data;
-    },
-    staleTime: Infinity,
-    gcTime: Infinity,
-    refetchOnWindowFocus: true
-  });
+  if (isLoadingTicket) {
+    return (
+      <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
 
-  // טעינת עדיפויות ועדכון ה-store
-  useQuery({
-    queryKey: ["priorities"],
-    queryFn: async () => {
-      const data = await getPriorities(authStore.token!);
-      prioritiesStore.setPriorities(data);
-      return data;
-    },
-    staleTime: Infinity,
-    gcTime: Infinity,
-    refetchOnWindowFocus: true
-  });
-
-  // טעינת סוכנים ועדכון ה-store
-  useQuery({
-    queryKey: ["users"],
-    queryFn: async () => {
-      const data = await getUsers(authStore.token!);
-      usersStore.setUsers(data);
-      return data;
-    },
-    staleTime: Infinity,
-    gcTime: Infinity,
-    refetchOnWindowFocus: true
-  });
+  if (ticketError || !ticketFromStore) {
+    return (
+      <Container sx={{ py: 10, textAlign: 'center' }}>
+        <Typography variant="h5" color="error" gutterBottom>
+          שגיאה בטעינת הפנייה
+        </Typography>
+        <Button variant="contained" onClick={() => navigate('/tickets')}>
+          חזרה לרשימת הפניות
+        </Button>
+      </Container>
+    );
+  }
   
   return (
     <Box sx={{ bgcolor: '#ffffff', minHeight: '100vh', py: 4 }}>
@@ -154,7 +145,7 @@ const TicketDetails: React.FC<TicketDetailsProps> = observer(() => {
           {/* צד שמאל - סרגל צד */}
           <Grid size={{ xs: 12, md: 5 }}>
             <Stack spacing={3}>
-              {/* כרטיס סטטוס ועדיפות */}
+              {/* פרטי סטטוס ועדיפות */}
               <Card sx={{ p: 4, borderRadius: '20px', boxShadow: 'none', border: '1px solid #e5e7eb' }}>
                 <Typography variant="overline" sx={{ fontWeight: 800, color: '#9ca3af', mb: 3, display: 'block', letterSpacing: '1.5px' }}>
                   סטטוס וניהול
@@ -219,7 +210,7 @@ const TicketDetails: React.FC<TicketDetailsProps> = observer(() => {
                 </Stack>
               </Card>
 
-              {/* כרטיס מידע נוסף */}
+              {/* פרטי מידע נוסף */}
               <Card sx={{ p: 4, borderRadius: '20px', boxShadow: 'none', border: '1px solid #e5e7eb' }}>
                 <Typography variant="overline" sx={{ fontWeight: 800, color: '#9ca3af', mb: 3, display: 'block', letterSpacing: '1.5px' }}>
                   פרטי מערכת
